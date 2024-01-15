@@ -10,7 +10,7 @@ name: "run tests"
 on:
   pull_request:
     types: [ opened, synchronize, reopened ]
-    branches: [ develop/test-workflow ]
+    #branches: [ develop/test-workflow ]
 
 jobs:
   build:
