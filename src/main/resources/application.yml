@@ -1,0 +1,10 @@
+server:
+  port: 8082
+
+logging:
+  level:
+    #    root: DEBUG
+    #org.springframework: DEBUG
+    org.springframework.web.socket: TRACE
+
+  maxStringLength: 100000
