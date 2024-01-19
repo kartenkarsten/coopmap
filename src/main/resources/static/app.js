@@ -1,5 +1,6 @@
 const stompClient = new StompJs.Client({
-    brokerURL: 'ws://localhost:8082/socket'
+    //brokerURL: 'ws://localhost:8082/socket'
+    brokerURL: 'ws://'+serverName+':'+serverPort+'/socket'
 });
 
 const map = L.map('map').setView([0, 0], 2);
@@ -78,7 +79,11 @@ const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 function onMapClick(e) {
-    publishMarker(e.latlng.lat, e.latlng.lng);
+    if (stompClient.connected == true) {
+        publishMarker(e.latlng.lat, e.latlng.lng);
+    }else{
+        console.log("can not create marker. Since Connection to server was not established now");
+    }
 }
 
 map.on('click', onMapClick);
