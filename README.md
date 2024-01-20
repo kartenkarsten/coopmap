@@ -10,8 +10,14 @@ this can e.g. be used in online meetings to mark each ones location
 
 # Usage
 
+run
+```
+docker run -p 8082:8082 -e server.name=1.2.3.4 ghcr.io/kartenkarsten/coopmap:latest
+```
+
+# Build
+
 run 
 ```
 ./gradlew bootBuildImage
-docker run -p 8082:8082 docker.io/library/coopmap:0.0.1-SNAPSHOT
 ```
