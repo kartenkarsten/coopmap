@@ -1,9 +1,12 @@
 package de.ichsagnurweb.coopmap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.*;
 
@@ -11,6 +14,21 @@ import java.util.*;
 public class MarkerController {
 
 	Map<Integer, Marker> markers = new HashMap();
+
+	@Value("${server.name:localhost}")
+	private String serverName;
+
+	@Value("${server.port}")
+	private String serverPort;
+
+	@GetMapping("/")
+	public String yourPage(Model model) {
+		// Pass a value to the Thymeleaf template
+		model.addAttribute("serverName", serverName);
+		model.addAttribute("serverPort", serverPort);
+
+		return "index";
+	}
 
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;

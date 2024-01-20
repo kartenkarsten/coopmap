@@ -15,8 +15,21 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 test {
 	useJUnitPlatform()
+}
+
+tasks.named("bootBuildImage") {
+	imageName.set("ghcr.io/kartenkarsten/${project.name}")
+//	publish = true
+//	docker {
+//		publishRegistry {
+//			username = ${{ github.actor }}
+//			password = ${{ secrets.GITHUB_TOKEN }}
+//		}
+//	}
 }
