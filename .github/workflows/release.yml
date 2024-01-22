@@ -41,8 +41,7 @@ jobs:
       with:
         registry: ghcr.io
         username: ${{github.actor}}
-          #password: ${{secrets.GITHUB_TOKEN}}
-        password: ${{secrets.PERSONAL_TOKEN_GHCR_WRITE}}
+        password: ${{secrets.GITHUB_TOKEN}}
 
     - name: Build image with Gradle
       uses: gradle/gradle-build-action@982da8e78c05368c70dac0351bb82647a9e9a5d2 # v2.11.1
