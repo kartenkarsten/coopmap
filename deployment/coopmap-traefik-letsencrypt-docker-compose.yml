@@ -1,0 +1,103 @@
+# Coopmap with Let's Encrypt Using Docker Compose
+
+# Change variables in the `.env` to meet your requirements.
+# Note that the `.env` file should be in the same directory as this `docker-compose.yml`.
+
+# Create networks for your services before deploying the configuration using the commands:
+# `docker network create traefik-network`
+
+# Deploy Nextcloud using Docker Compose:
+# `docker compose -f *docker-compose.yml -p coopmap up -d`
+
+networks:
+  traefik-network:
+    external: true
+
+volumes:
+  traefik-certificates:
+
+services:
+  coopmap:
+    image: ghcr.io/kartenkarsten/coopmap:latest
+    environment:
+      server.name: "${COOPMAP_HOSTNAME}"
+    expose:
+      - "8082:80"
+    networks:
+      - traefik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.myweb.rule=Host(`${COOPMAP_HOSTNAME}`)"
+      - "traefik.http.routers.myweb.service=myweb"
+      - "traefik.http.routers.myweb.entrypoints=websecure"
+      - "traefik.http.services.myweb.loadbalancer.server.port=80"
+      - "traefik.http.routers.myweb.tls=true"
+      - "traefik.http.routers.myweb.tls.certresolver=letsencrypt"
+      - "traefik.http.services.myweb.loadbalancer.passhostheader=true"
+      - "traefik.http.routers.myweb.middlewares=compresstraefik"
+      - "traefik.http.middlewares.compresstraefik.compress=true"
+      - "traefik.docker.network=traefik-network"
+    restart: unless-stopped
+    depends_on:
+      traefik:
+        condition: service_healthy
+
+  traefik:
+    image: ${TRAEFIK_IMAGE_TAG}
+    command:
+      - "--log.level=${TRAEFIK_LOG_LEVEL}"
+      - "--accesslog=true"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--ping=true"
+      - "--ping.entrypoint=ping"
+      - "--entryPoints.ping.address=:8082"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedByDefault=false"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${TRAEFIK_ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+      - "--global.checkNewVersion=true"
+      - "--global.sendAnonymousUsage=false"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - traefik-certificates:/etc/traefik/acme
+    networks:
+      - traefik-network
+    ports:
+      - "80:80"
+      - "443:443"
+    healthcheck:
+      test: ["CMD", "wget", "http://localhost:8082/ping","--spider"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_HOSTNAME}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.services.dashboard.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.services.dashboard.loadbalancer.passhostheader=true"
+      - "traefik.http.routers.dashboard.middlewares=authtraefik"
+      - "traefik.http.middlewares.authtraefik.basicauth.users=${TRAEFIK_BASIC_AUTH}"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    restart: unless-stopped
+
