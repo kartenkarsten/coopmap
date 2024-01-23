@@ -22,21 +22,21 @@ services:
     environment:
       server.name: "${COOPMAP_HOSTNAME}"
     expose:
-      - "8082:80"
+      - "8082"
     networks:
       - traefik-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 90s
+        #    healthcheck:
+        #      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+        #      interval: 10s
+        #      timeout: 5s
+        #      retries: 3
+        #      start_period: 90s
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.myweb.rule=Host(`${COOPMAP_HOSTNAME}`)"
       - "traefik.http.routers.myweb.service=myweb"
       - "traefik.http.routers.myweb.entrypoints=websecure"
-      - "traefik.http.services.myweb.loadbalancer.server.port=80"
+      - "traefik.http.services.myweb.loadbalancer.server.port=8082"
       - "traefik.http.routers.myweb.tls=true"
       - "traefik.http.routers.myweb.tls.certresolver=letsencrypt"
       - "traefik.http.services.myweb.loadbalancer.passhostheader=true"
@@ -57,7 +57,7 @@ services:
       - "--api.insecure=true"
       - "--ping=true"
       - "--ping.entrypoint=ping"
-      - "--entryPoints.ping.address=:8082"
+      - "--entryPoints.ping.address=:8083"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
       - "--providers.docker=true"
@@ -79,7 +79,7 @@ services:
       - "80:80"
       - "443:443"
     healthcheck:
-      test: ["CMD", "wget", "http://localhost:8082/ping","--spider"]
+      test: ["CMD", "wget", "http://localhost:8083/ping","--spider"]
       interval: 10s
       timeout: 5s
       retries: 3
