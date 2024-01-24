@@ -1,6 +1,6 @@
 const stompClient = new StompJs.Client({
     //brokerURL: 'ws://localhost:8082/socket'
-    brokerURL: 'ws://'+serverName+':'+serverPort+'/socket'
+    brokerURL: websocketProtocol+'://'+serverName+':'+websocketPort+'/socket'
 });
 
 const map = L.map('map').setView([0, 0], 2);
