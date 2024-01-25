@@ -18,14 +18,18 @@ public class MarkerController {
 	@Value("${server.name:localhost}")
 	private String serverName;
 
-	@Value("${server.port}")
-	private String serverPort;
+	@Value("${websocket.port:8082}")
+	private String websocketPort;
+
+	@Value("${websocket.protocol:ws}")
+	private String websocketProtocol;
 
 	@GetMapping("/")
 	public String yourPage(Model model) {
 		// Pass a value to the Thymeleaf template
 		model.addAttribute("serverName", serverName);
-		model.addAttribute("serverPort", serverPort);
+		model.addAttribute("websocketPort", websocketPort);
+		model.addAttribute("websocketProtocol", websocketProtocol);
 
 		return "index";
 	}
