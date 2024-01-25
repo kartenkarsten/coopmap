@@ -21,6 +21,8 @@ services:
     image: ghcr.io/kartenkarsten/coopmap:latest
     environment:
       server.name: "${COOPMAP_HOSTNAME}"
+      websocket.port: 443
+      websocket.protocol: "wss"
     expose:
       - "8082"
     networks:
