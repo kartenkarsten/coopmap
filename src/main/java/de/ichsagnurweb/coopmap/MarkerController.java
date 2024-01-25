@@ -28,8 +28,8 @@ public class MarkerController {
 	public String yourPage(Model model) {
 		// Pass a value to the Thymeleaf template
 		model.addAttribute("serverName", serverName);
-		model.addAttribute("serverPort", websocketPort);
-		model.addAttribute("protocol", websocketProtocol);
+		model.addAttribute("websocketPort", websocketPort);
+		model.addAttribute("websocketProtocol", websocketProtocol);
 
 		return "index";
 	}
