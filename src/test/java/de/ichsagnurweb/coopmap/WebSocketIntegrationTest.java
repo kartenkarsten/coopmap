@@ -46,7 +46,7 @@ public class WebSocketIntegrationTest {
                         wsUrl, new StompSessionHandlerAdapter() {})
                 .get(30, TimeUnit.SECONDS);
 
-        session.subscribe("/topic/marker", new StompFrameHandler() {
+        session.subscribe("/topic/markers", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders stompHeaders) {
                 return byte[].class;
