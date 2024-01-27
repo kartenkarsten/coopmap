@@ -16,16 +16,19 @@ stompClient.activate();
 
 stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/marker', (markerRaw) => {
-        marker=JSON.parse(markerRaw.body);
-        showMarker(marker.lat, marker.lon, marker.id, marker.name);
-    });
     stompClient.subscribe('/topic/markers', (message) => {
         ms=JSON.parse(message.body);
         ms.forEach((marker) => {
             showMarker(marker.lat, marker.lon, marker.id, marker.name);
         });
     });
+    stompClient.subscribe('/topic/markersToDelete', (message) => {
+        ms=JSON.parse(message.body);
+        ms.forEach((marker) => {
+            deleteMarker(marker.id);
+        });
+    });
+
     stompClient.subscribe('/topic/*', function(message) {
             // Handle the received message
             const payload = JSON.parse(message.body);
@@ -47,20 +50,28 @@ stompClient.onStompError = (frame) => {
     console.error('Additional details: ' + frame.body);
 };
 
-function publishMarker(lat, lon, id, name,) {
+function publishMarker(lat, lon, id, name, desc) {
         stompClient.publish({
             destination: "/app/updateMarker",
-            body: JSON.stringify({'id': id, 'name':name,'lat': lat, 'lon': lon})
+            body: JSON.stringify({'id': id, 'name':name,'lat': lat, 'lon': lon, 'desc': desc})
         });
 }
 
 const markers = {};
-function showMarker(lat, lon, id, name) {
+function deleteMarker(id) {
+    markers[id].removeFrom(map);
+    markers[id] = null;
+}
+
+function showMarker(lat, lon, id, name, desc) {
     var marker = markers[id];
 
     if (null == marker) {
         // init marker
-        marker = L.marker([lat, lon], {'title': name, 'draggable': true});
+        marker = L.marker([lat, lon], {'title': name, 'draggable': true}).on('click', function (e) {
+            L.DomEvent.stopPropagation(e);
+            showMarkerDetails(id);
+        });
         marker.on('dragend', function(e) {
           console.log('marker dragend event');
           publishMarker(e.target._latlng.lat, e.target._latlng.lng, id, name);
@@ -73,12 +84,29 @@ function showMarker(lat, lon, id, name) {
     }
 }
 
+function showMarkerDetails(id) {
+    $("#markerDetails").show();
+    //TODO save metadata in markers list like name, desciption
+//    marker = markers[id];
+//    $( "#name" ).val(marker.options.title);
+//    $( "#description" ).val(marker.desc);
+
+}
+
+function clearMap() {
+        stompClient.publish({
+            destination: "/app/clearMap",
+            body: JSON.stringify({})
+        });
+}
+
 const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
 function onMapClick(e) {
+    map.panTo(e.latlng);
     if (stompClient.connected == true) {
         publishMarker(e.latlng.lat, e.latlng.lng);
     }else{

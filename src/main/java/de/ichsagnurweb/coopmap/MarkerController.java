@@ -3,6 +3,7 @@ package de.ichsagnurweb.coopmap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,8 +39,8 @@ public class MarkerController {
 	private SimpMessagingTemplate messagingTemplate;
 
 	@MessageMapping("/updateMarker")
-//	@SendTo("/topic/counts")
-	public void updateMarker(Marker marker) throws Exception {
+	@SendTo("/topic/markers")
+	public List<Marker> updateMarker(Marker marker) throws Exception {
 		Integer id = marker.getId();
 		if (null == id) {
 			id = calcNewId();
@@ -49,16 +50,19 @@ public class MarkerController {
 			// update marker in map
 			markers.put(id, marker);
 		}
-		Marker payload = markers.get(id);
-		messagingTemplate.convertAndSend("/topic/marker", payload);
+		return Arrays.asList(markers.get(id));
 	}
 
 	@MessageMapping("/getMarkers")
-//	@SendTo("/topic/counts")
-	public void getMarker() throws Exception {
-//		Markers payload = new Markers(this.markers.values());
-		List<Marker> payload = this.markers.values().stream().toList();
-		messagingTemplate.convertAndSend("/topic/markers", payload);
+	@SendTo("/topic/markers")
+	public List<Marker> getMarker() throws Exception {
+		return this.markers.values().stream().toList();
+	}
+
+	@MessageMapping("/clearMap")
+	@SendTo("/topic/markersToDelete")
+	public List<Marker> clearMap() throws Exception {
+		return this.markers.values().stream().toList();
 	}
 
 
