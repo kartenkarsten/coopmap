@@ -18,7 +18,7 @@ volumes:
 
 services:
   coopmap:
-    image: ghcr.io/kartenkarsten/coopmap:latest
+    image: ${COOPMAP_IMAGE}
     environment:
       server.name: "${COOPMAP_HOSTNAME}"
       websocket.port: 443
