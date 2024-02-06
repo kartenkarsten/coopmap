@@ -57,6 +57,20 @@ function publishMarker(lat, lon, id, name, desc) {
         });
 }
 
+function publishMarkerDeletion(id) {
+        stompClient.publish({
+            destination: "/app/deleteMarker",
+            body: JSON.stringify({'id': id})
+        });
+}
+
+function publishClearMap() {
+        stompClient.publish({
+            destination: "/app/clearMap",
+            body: JSON.stringify({})
+        });
+}
+
 const markers = {};
 function deleteMarker(id) {
     markers[id].removeFrom(map);
@@ -85,20 +99,15 @@ function showMarker(lat, lon, id, name, desc) {
 }
 
 function showMarkerDetails(id) {
-    $("#markerDetails").show();
     //TODO save metadata in markers list like name, desciption
+    $("#markerDetails :input#id").val(id);
 //    marker = markers[id];
+
 //    $( "#name" ).val(marker.options.title);
 //    $( "#description" ).val(marker.desc);
-
+    $("#markerDetails").show();
 }
 
-function clearMap() {
-        stompClient.publish({
-            destination: "/app/clearMap",
-            body: JSON.stringify({})
-        });
-}
 
 const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,

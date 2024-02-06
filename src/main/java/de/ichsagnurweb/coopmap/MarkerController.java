@@ -38,6 +38,20 @@ public class MarkerController {
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
 
+	@MessageMapping("/deleteMarker")
+	@SendTo("/topic/markersToDelete")
+	public List<Marker> deleteMarker(Marker marker) throws Exception {
+		Marker toDelete = null;
+		Integer id = marker.getId();
+		if (null == id) {
+			//should not happen
+		}else{
+			// update marker in map
+			toDelete = markers.remove(id);
+		}
+		return Arrays.asList(toDelete);
+	}
+
 	@MessageMapping("/updateMarker")
 	@SendTo("/topic/markers")
 	public List<Marker> updateMarker(Marker marker) throws Exception {
