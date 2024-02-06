@@ -16,30 +16,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
-        .leaflet-container {
-            height: 100%;
-            width: 100%;
-            max-width: 100%;
-            max-height: 100%;
-        }
-        #map {
-            width: 100%;
-            height: calc(100% - 200px);
-        }
-    </style>
-
-
 </head>
 <body>
 
-<nav class="navbar navbar-light bg-light">
+<nav id="top" class="navbar navbar-light bg-light">
     <span class="navbar-brand mb-0 h1">Our first collaborative map <span class="badge badge-secondary">New</span></span>
     <button type="button" onclick="publishClearMap()" class="btn btn-outline-danger">Clear Map</button>
 </nav><!-- As a heading -->
@@ -64,7 +44,7 @@
     </div>
     <div class="form-group">
         <button name="submit" type="button" onclick='markerDetailsSave()' class="btn btn-primary">Save</button>
-        <button name="cancel" type="button" onclick='$("#markerDetails").hide();' class="btn btn-secondary">Cancel</button>
+        <button name="cancel" type="button" onclick='markerDetailsHide()' class="btn btn-secondary">Cancel</button>
         <button name="delete" type="button" onclick='publishMarkerDeletion($("#markerDetails :input#id").val())' class="btn btn-outline-danger">Delete</button>
     </div>
 </form>

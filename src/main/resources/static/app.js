@@ -84,7 +84,7 @@ function showMarker(lat, lon, id, name, desc) {
         // init marker
         var leafleatObject = L.marker([lat, lon], {'title': name, 'draggable': true}).on('click', function (e) {
             L.DomEvent.stopPropagation(e);
-            showMarkerDetails(id);
+            markerDetailsShow(id);
         });
         leafleatObject.on('dragend', function(e) {
           console.log('marker dragend event');
@@ -110,17 +110,24 @@ function markerDetailsSave() {
     var name = $("#markerDetails :input#name").val();
     var desc = $("#markerDetails :input#description").val();
     publishMarker(markers[id].lat, markers[id].lon, id, name, desc);
-    $("#markerDetails").hide();
+    markerDetailsHide();
 }
 
-function showMarkerDetails(id) {
-    //TODO save metadata in markers list like name, desciption
+function markerDetailsHide() {
+    $("#markerDetails").hide();
+    var otherHeights = $("#top").height() + 16;
+    $("#map").height("calc(100% - " + otherHeights + "px)");
+}
+
+function markerDetailsShow(id) {
     $("#markerDetails :input#id").val(id);
     var marker = markers[id];
 
     $( "#name" ).val(marker.name);
     $( "#description" ).val(marker.desc);
     $("#markerDetails").show();
+    var otherHeights = $("#markerDetails").height() +  $("#top").height() + 32;
+    $("#map").height("calc(100% - "+otherHeights+"px)");
 }
 
 
