@@ -19,7 +19,7 @@ stompClient.onConnect = (frame) => {
     stompClient.subscribe('/topic/markers', (message) => {
         ms=JSON.parse(message.body);
         ms.forEach((marker) => {
-            showMarker(marker.lat, marker.lon, marker.id, marker.name);
+            showMarker(marker.lat, marker.lon, marker.id, marker.name, marker.description);
         });
     });
     stompClient.subscribe('/topic/markersToDelete', (message) => {
@@ -53,7 +53,7 @@ stompClient.onStompError = (frame) => {
 function publishMarker(lat, lon, id, name, desc) {
         stompClient.publish({
             destination: "/app/updateMarker",
-            body: JSON.stringify({'id': id, 'name':name,'lat': lat, 'lon': lon, 'desc': desc})
+            body: JSON.stringify({'id': id, 'name':name,'lat': lat, 'lon': lon, 'description': desc})
         });
 }
 
@@ -73,7 +73,7 @@ function publishClearMap() {
 
 const markers = {};
 function deleteMarker(id) {
-    markers[id].removeFrom(map);
+    markers[id].marker.removeFrom(map);
     markers[id] = null;
 }
 
@@ -82,29 +82,44 @@ function showMarker(lat, lon, id, name, desc) {
 
     if (null == marker) {
         // init marker
-        marker = L.marker([lat, lon], {'title': name, 'draggable': true}).on('click', function (e) {
+        var leafleatObject = L.marker([lat, lon], {'title': name, 'draggable': true}).on('click', function (e) {
             L.DomEvent.stopPropagation(e);
             showMarkerDetails(id);
         });
-        marker.on('dragend', function(e) {
+        leafleatObject.on('dragend', function(e) {
           console.log('marker dragend event');
-          publishMarker(e.target._latlng.lat, e.target._latlng.lng, id, name);
+          publishMarker(e.target._latlng.lat, e.target._latlng.lng, id, markers[id].name, markers[id].desc);
         });
+        marker={};
+        marker.marker = leafleatObject;
         markers[id] = marker;
-        marker.addTo(map);
+        leafleatObject.addTo(map);
+
     } else {
         // update marker
-        marker.setLatLng(new L.LatLng(lat, lon));
+        marker.marker.setLatLng(new L.LatLng(lat, lon));
     }
+    marker.lat = lat;
+    marker.lon = lon;
+    marker.name = name;
+    marker.desc = desc;
+}
+
+function markerDetailsSave() {
+    var id = $("#markerDetails :input#id").val();
+    var name = $("#markerDetails :input#name").val();
+    var desc = $("#markerDetails :input#description").val();
+    publishMarker(markers[id].lat, markers[id].lon, id, name, desc);
+    $("#markerDetails").hide();
 }
 
 function showMarkerDetails(id) {
     //TODO save metadata in markers list like name, desciption
     $("#markerDetails :input#id").val(id);
-//    marker = markers[id];
+    var marker = markers[id];
 
-//    $( "#name" ).val(marker.options.title);
-//    $( "#description" ).val(marker.desc);
+    $( "#name" ).val(marker.name);
+    $( "#description" ).val(marker.desc);
     $("#markerDetails").show();
 }
 

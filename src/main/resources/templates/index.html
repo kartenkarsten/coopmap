@@ -19,14 +19,19 @@
 
     <style>
         html, body {
-            height: 100%;
             margin: 0;
+            padding: 0;
+            height: 100%;
         }
         .leaflet-container {
             height: 100%;
             width: 100%;
             max-width: 100%;
             max-height: 100%;
+        }
+        #map {
+            width: 100%;
+            height: calc(100% - 200px);
         }
     </style>
 
@@ -53,19 +58,18 @@
             <input id="id" name="id" type="hidden" class="form-control">
         </div>
     </div>
-<!--    not implemented now -->
-<!--    <div class="form-group">-->
-<!--        <label for="description">Description</label>-->
-<!--        <textarea id="description" name="description" cols="40" rows="5" required="required" class="form-control"></textarea>-->
-<!--    </div>-->
     <div class="form-group">
-        <button name="submit" type="button" onclick='alert("not implemented")' class="btn btn-primary">Save</button>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" cols="40" rows="5" required="required" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <button name="submit" type="button" onclick='markerDetailsSave()' class="btn btn-primary">Save</button>
         <button name="cancel" type="button" onclick='$("#markerDetails").hide();' class="btn btn-secondary">Cancel</button>
         <button name="delete" type="button" onclick='publishMarkerDeletion($("#markerDetails :input#id").val())' class="btn btn-outline-danger">Delete</button>
     </div>
 </form>
 
-<div id="map" style="width: 100%; height: 100%;"></div>
+<div id="map"></div>
 
 <!-- Use Thymeleaf syntax to output the value to JavaScript -->
 <script th:inline="javascript">

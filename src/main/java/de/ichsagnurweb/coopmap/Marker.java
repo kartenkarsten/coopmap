@@ -6,6 +6,7 @@ public class Marker implements Serializable {
 
 	private Integer id;
 	private String name;
+	private String description;
 	private Double lon;
 	private Double lat;
 
@@ -37,5 +38,9 @@ public class Marker implements Serializable {
 
 	public java.lang.String getName() {
 		return name;
+	}
+
+	public java.lang.String getDescription() {
+		return description;
 	}
 }
