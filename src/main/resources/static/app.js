@@ -12,8 +12,6 @@ function showPosition(position) {
     map.flyTo(new L.LatLng(position.coords.latitude, position.coords.longitude), 10, {'animate':false});
 }
 
-stompClient.activate();
-
 stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/markers', (message) => {
@@ -39,8 +37,6 @@ stompClient.onConnect = (frame) => {
     stompClient.publish({destination: "/app/getMarkers"});
 };
 
-
-
 stompClient.onWebSocketError = (error) => {
     console.error('Error with websocket', error);
 };
@@ -50,6 +46,10 @@ stompClient.onStompError = (frame) => {
     console.error('Additional details: ' + frame.body);
 };
 
+stompClient.activate();
+markerDetailsHide();
+
+////////////////////////////////////////////////////////////////////////////
 function publishMarker(lat, lon, id, name, desc) {
         stompClient.publish({
             destination: "/app/updateMarker",
@@ -70,6 +70,8 @@ function publishClearMap() {
             body: JSON.stringify({})
         });
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 const markers = {};
 function deleteMarker(id) {
