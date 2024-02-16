@@ -107,6 +107,12 @@ function showMarker(lat, lon, id, name, desc) {
     marker.desc = desc;
 }
 
+function markerDelete() {
+    var id = $("#markerDetails :input#id").val();
+    publishMarkerDeletion(id);
+    markerDetailsHide();
+}
+
 function markerDetailsSave() {
     var id = $("#markerDetails :input#id").val();
     var name = $("#markerDetails :input#name").val();
@@ -130,6 +136,7 @@ function markerDetailsShow(id) {
     $("#markerDetails").show();
     var otherHeights = $("#markerDetails").height() +  $("#top").height() + 32;
     $("#map").height("calc(100% - "+otherHeights+"px)");
+    map.panTo(new L.LatLng(marker.lat, marker.lon));
 }
 
 
@@ -138,13 +145,24 @@ const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+map.clicked = 0;
 function onMapClick(e) {
-    map.panTo(e.latlng);
-    if (stompClient.connected == true) {
-        publishMarker(e.latlng.lat, e.latlng.lng);
-    }else{
-        console.log("can not create marker. Since Connection to server was not established now");
-    }
+    // react only on single click not dblclick
+    map.clicked = map.clicked + 1;
+    setTimeout(function(){
+        if(map.clicked == 1){
+            if (stompClient.connected == true) {
+                publishMarker(e.latlng.lat, e.latlng.lng);
+            }else{
+                console.log("can not create marker. Since Connection to server was not established now");
+            }
+        }
+     }, 300);
 }
 
 map.on('click', onMapClick);
+
+map.on('dblclick', function(event){
+    map.clicked = 0;
+    map.zoomIn();
+});
