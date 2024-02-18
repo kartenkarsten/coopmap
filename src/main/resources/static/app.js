@@ -141,6 +141,7 @@ function markerDetailsShow(id) {
     $("#markerDetails :input#id").val(id);
     var marker = markers[id];
 
+    $("#markerDetails p").text("Marker #"+id+" Details");
     $( "#name" ).val(marker.name);
     $( "#description" ).val(marker.desc);
     $("#markerDetails").show();

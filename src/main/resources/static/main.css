@@ -13,3 +13,11 @@ html, body {
     width: 100%;
     height: calc(100% - 200px);
 }
+
+#markerDetails {
+        position: absolute;
+        bottom: 0;
+        height: 350px;
+        margin: 10px;
+        width: calc( 100% - 20px);
+}
