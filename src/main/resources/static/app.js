@@ -86,7 +86,13 @@ function showMarker(lat, lon, id, name, desc) {
         // init marker
         var leafleatObject = L.marker([lat, lon], {'title': name, 'draggable': true}).on('click', function (e) {
             L.DomEvent.stopPropagation(e);
-            markerDetailsShow(id);
+            if ($("#markerDetails :input#id").val() == id) {
+                // unselect this marker
+                markerDetailsHide();
+            }else{
+                // select this marker
+                markerDetailsShow(id);
+            }
         });
         leafleatObject.on('dragend', function(e) {
           console.log('marker dragend event');
@@ -123,11 +129,15 @@ function markerDetailsSave() {
 
 function markerDetailsHide() {
     $("#markerDetails").hide();
+    var id = $("#markerDetails :input#id").val();
+    $("#markerDetails :input#id").val("")
+    //map.fire('coopmap:markerunselected', { 'markerId': id });
     var otherHeights = $("#top").height() + 16;
     $("#map").height("calc(100% - " + otherHeights + "px)");
 }
 
 function markerDetailsShow(id) {
+    //map.fire('coopmap:markerselected', { 'markerId': id });
     $("#markerDetails :input#id").val(id);
     var marker = markers[id];
 
