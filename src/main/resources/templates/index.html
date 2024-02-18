@@ -27,21 +27,22 @@
 <div id="map"></div>
 
 <!-- formular to create/edit a marker -->
-<form id="markerDetails" style="display: none;">
+<form id="markerDetails" style="display: none;" >
+    <input id="id" name="id" type="hidden" class="form-control">
+
     <p class="h3">Marker Details</p>
     <button type="button" onclick="markerDetailsHide()" class="btn btn-secondary pull-right" style="position: absolute; right: 0px; top: 0px;"><i class="bi bi-x-square"></i></button>
-    <div class="form-group">
-        <label for="name">Name</label>
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <div class="input-group-text">
-                    <i class="fa fa-address-book"></i>
-                </div>
-            </div>
-            <input id="name" name="name" placeholder="guest" type="text" class="form-control">
-            <input id="id" name="id" type="hidden" class="form-control">
-        </div>
-    </div>
+    <!--    <div class="form-group">-->
+    <!--        <label for="name">Name</label>-->
+    <!--        <div class="input-group">-->
+    <!--            <div class="input-group-prepend">-->
+    <!--                <div class="input-group-text">-->
+    <!--                    <i class="fa fa-address-book"></i>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--            <input id="name" name="name" placeholder="guest" type="hidden" class="form-control">-->
+    <!--        </div>-->
+    <!--    </div>-->
     <div class="form-group">
         <label for="description">Description</label>
         <textarea id="description" name="description" cols="40" rows="5" required="required" class="form-control"></textarea>

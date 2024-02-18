@@ -17,7 +17,7 @@ html, body {
 #markerDetails {
         position: absolute;
         bottom: 0;
-        height: 350px;
+        height: 270px;
         margin: 10px;
         width: calc( 100% - 20px);
 }
