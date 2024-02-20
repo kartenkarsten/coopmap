@@ -134,6 +134,7 @@ function markerDetailsHide() {
     //map.fire('coopmap:markerunselected', { 'markerId': id });
     var otherHeights = $("#top").height() + 16;
     $("#map").height("calc(100% - " + otherHeights + "px)");
+    setTimeout(function(){ map.invalidateSize()}, 400);
 }
 
 function markerDetailsShow(id) {
@@ -147,7 +148,11 @@ function markerDetailsShow(id) {
     $("#markerDetails").show();
     var otherHeights = $("#markerDetails").height() +  $("#top").height() + 32;
     $("#map").height("calc(100% - "+otherHeights+"px)");
-    map.panTo(new L.LatLng(marker.lat, marker.lon));
+    setTimeout(function() {
+      map.invalidateSize();
+      map.panTo(new L.LatLng(marker.lat, marker.lon));
+    }, 400);
+
 }
 
 
@@ -167,6 +172,7 @@ function onMapClick(e) {
             }else{
                 console.log("can not create marker. Since Connection to server was not established now");
             }
+            map.clicked = 0;
         }
      }, 300);
 }
