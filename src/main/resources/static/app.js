@@ -130,7 +130,7 @@ function markerDetailsSave() {
 function markerDetailsHide() {
     $("#markerDetails").hide();
     var id = $("#markerDetails :input#id").val();
-    $("#markerDetails :input#id").val("")
+    $("#markerDetails :input#id").val("invalid")
     //map.fire('coopmap:markerunselected', { 'markerId': id });
     var otherHeights = $("#top").height() + 16;
     $("#map").height("calc(100% - " + otherHeights + "px)");
