@@ -76,8 +76,9 @@ public class MarkerController {
 	@MessageMapping("/clearMap")
 	@SendTo("/topic/markersToDelete")
 	public List<Marker> clearMap() throws Exception {
+		List<Marker> markersToDelete = this.markers.values().stream().toList();
 		this.markers.clear();
-		return this.markers.values().stream().toList();
+		return markersToDelete;
 	}
 
 
