@@ -51,7 +51,7 @@ public class MarkerController {
 			//should not happen
 		}else{
 			// update marker in map
-			toDelete = markerRepository.findById(id);
+			toDelete = markerRepository.findById(id).orElse(null);
 			markerRepository.deleteById(id);
 		}
 		return Arrays.asList(toDelete);

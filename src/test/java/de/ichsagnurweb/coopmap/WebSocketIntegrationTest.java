@@ -7,10 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.data.repository.support.Repositories;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
@@ -26,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "port=0")
+@ActiveProfiles(value = "test")
 public class WebSocketIntegrationTest {
 
 
@@ -33,6 +36,9 @@ public class WebSocketIntegrationTest {
 
     @Autowired
     private WebSocketStompClient stompClient;
+
+    @Autowired
+    private MarkerRepository markerRepository;
 
 
     @LocalServerPort
@@ -71,6 +77,7 @@ public class WebSocketIntegrationTest {
         session.send("/app/updateMarker", message.getBytes());
 
         Marker receivedMessage = blockingQueue.poll(15, SECONDS);
+        assertThat(markerRepository.findAll()).size().isEqualTo(1);
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage.getId()).isNotNull();
         assertThat(receivedMessage.getName()).isEqualTo(marker.getName());
