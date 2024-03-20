@@ -14,7 +14,7 @@ import java.util.*;
 @Controller
 public class MarkerController {
 
-	Map<Integer, Marker> markers = new HashMap();
+	Map<Long, Marker> markers = new HashMap();
 
 	@Value("${server.name:localhost}")
 	private String serverName;
@@ -24,6 +24,13 @@ public class MarkerController {
 
 	@Value("${websocket.protocol:ws}")
 	private String websocketProtocol;
+
+	@Autowired
+	private MarkerRepository markerRepository;
+
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
+
 
 	@GetMapping("/")
 	public String yourPage(Model model) {
@@ -35,19 +42,17 @@ public class MarkerController {
 		return "index";
 	}
 
-	@Autowired
-	private SimpMessagingTemplate messagingTemplate;
-
 	@MessageMapping("/deleteMarker")
 	@SendTo("/topic/markersToDelete")
 	public List<Marker> deleteMarker(Marker marker) throws Exception {
 		Marker toDelete = null;
-		Integer id = marker.getId();
+		Long id = marker.getId();
 		if (null == id) {
 			//should not happen
 		}else{
 			// update marker in map
-			toDelete = markers.remove(id);
+			toDelete = markerRepository.findById(id);
+			markerRepository.deleteById(id);
 		}
 		return Arrays.asList(toDelete);
 	}
@@ -55,36 +60,23 @@ public class MarkerController {
 	@MessageMapping("/updateMarker")
 	@SendTo("/topic/markers")
 	public List<Marker> updateMarker(Marker marker) throws Exception {
-		Integer id = marker.getId();
-		if (null == id) {
-			id = calcNewId();
-			marker.setId(id);
-			markers.put(id, marker);
-		}else{
-			// update marker in map
-			markers.put(id, marker);
-		}
-		return Arrays.asList(markers.get(id));
+		Marker savedMarker = markerRepository.save(marker);
+		return Arrays.asList(savedMarker);
 	}
 
 	@MessageMapping("/getMarkers")
 	@SendTo("/topic/markers")
-	public List<Marker> getMarker() throws Exception {
-		return this.markers.values().stream().toList();
+	public Iterable<Marker> getMarker() throws Exception {
+		return markerRepository.findAll();
 	}
 
 	@MessageMapping("/clearMap")
 	@SendTo("/topic/markersToDelete")
-	public List<Marker> clearMap() throws Exception {
-		List<Marker> markersToDelete = this.markers.values().stream().toList();
-		this.markers.clear();
+	public Iterable<Marker> clearMap() throws Exception {
+		Iterable<Marker> markersToDelete = markerRepository.findAll();
+		markerRepository.deleteAll();
 		return markersToDelete;
 	}
 
-
-	private Integer calcNewId() {
-		Optional<Integer> max = markers.keySet().stream().reduce(Integer::max);
-		return max.orElse(-1)+1;
-	}
 
 }
