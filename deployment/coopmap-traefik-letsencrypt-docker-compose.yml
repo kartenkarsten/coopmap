@@ -45,6 +45,7 @@ services:
       server.name: "${COOPMAP_HOSTNAME}"
       websocket.port: 443
       websocket.protocol: "wss"
+      spring.profiles.active: "debug"
       spring.datasource.driver-class-name: "org.postgresql.Driver"
       spring.datasource.password: "${COOPMAP_DB_PASSWORD}"
       spring.datasource.username: "${COOPMAP_DB_USER}"
@@ -54,7 +55,7 @@ services:
       - "8082"
     networks:
       - traefik-network
-      #- coopmap-network
+      - coopmap-network
         #    healthcheck:
         #      test: ["CMD", "curl", "-f", "http://localhost:80/"]
         #      interval: 10s

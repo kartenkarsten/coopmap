@@ -1,16 +1,15 @@
 server:
   port: 8082
 
-logging:
-  level:
-    #    root: DEBUG
-    #org.springframework: DEBUG
-    org.springframework.web.socket: TRACE
-
-  maxStringLength: 100000
-
 spring:
   datasource:
     driver-class-name: "org.postgresql.Driver"
     username: "coopmap"
     url: "jdbc:postgresql://postgres:5432/coopmap"
+    initialization-mode: always
+    initialize: true
+
+  jpa:
+    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
+    #hibernate:
+      #ddl-auto=none

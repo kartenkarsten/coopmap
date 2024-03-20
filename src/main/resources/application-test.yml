@@ -1,8 +1,0 @@
-spring:
-  jpa:
-    hibernate:
-      show-sql: true
-      #ddl-auto=none
-  datasource:
-    initialization-mode: always
-    initialize: true
