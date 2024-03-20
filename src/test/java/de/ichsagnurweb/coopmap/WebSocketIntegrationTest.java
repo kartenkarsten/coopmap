@@ -1,6 +1,7 @@
 package de.ichsagnurweb.coopmap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +48,7 @@ public class WebSocketIntegrationTest {
                         wsUrl, new StompSessionHandlerAdapter() {})
                 .get(30, TimeUnit.SECONDS);
 
-        session.subscribe("/topic/marker", new StompFrameHandler() {
+        session.subscribe("/topic/markers", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders stompHeaders) {
                 return byte[].class;
@@ -55,8 +57,8 @@ public class WebSocketIntegrationTest {
             @Override
             public void handleFrame(StompHeaders stompHeaders, Object payload) {
                 try {
-                    Marker marker = objectMapper.readValue(new String((byte[]) payload, StandardCharsets.UTF_8), Marker.class);
-                    blockingQueue.add(marker);
+                    List<Marker> markers = objectMapper.readValue(new String((byte[]) payload, StandardCharsets.UTF_8), new TypeReference<List<Marker>>() {});
+                    blockingQueue.addAll(markers);
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
