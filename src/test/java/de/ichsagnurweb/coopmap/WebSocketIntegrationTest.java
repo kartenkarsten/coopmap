@@ -3,7 +3,9 @@ package de.ichsagnurweb.coopmap;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -78,6 +80,7 @@ public class WebSocketIntegrationTest {
 
         Marker receivedMessage = blockingQueue.poll(15, SECONDS);
         assertThat(markerRepository.findAll()).size().isEqualTo(1);
+        markerRepository.deleteAll();//clean up
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage.getId()).isNotNull();
         assertThat(receivedMessage.getName()).isEqualTo(marker.getName());
@@ -114,11 +117,11 @@ public class WebSocketIntegrationTest {
         Marker marker = new Marker("test-getall", 0.0, 0.0);
         Marker savedmarker = markerRepository.save(marker);
 
-        String message = objectMapper.writeValueAsString(marker);
         session.send("/app/getMarkers", null);
 
         Marker receivedMessage = blockingQueue.poll(15, SECONDS);
 
+        markerRepository.deleteAll();//clean up
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage.getId()).isNotNull();
         assertThat(receivedMessage.getName()).isEqualTo(savedmarker.getName());
