@@ -1,0 +1,31 @@
+# Coopmap with Let's Encrypt Using Docker Compose
+
+# Change variables in the `.env` to meet your requirements.
+# Note that the `.env` file should be in the same directory as this `docker-compose.yml`.
+
+# Deploy Postgres to use with Coopmap using Docker Compose (with exposed db port for local development):
+# `docker compose -f *docker-compose.yml -p coopmap up -d`
+
+volumes:
+  coopmap-postgres:
+
+services:
+  postgres:
+    image: ${COOPMAP_POSTGRES_IMAGE}
+    volumes:
+      - coopmap-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${COOPMAP_DB_NAME}
+      POSTGRES_USER: ${COOPMAP_DB_USER}
+      POSTGRES_PASSWORD: ${COOPMAP_DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    #networks:
+      #- coopmap-network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${COOPMAP_DB_NAME}", "-U", "${COOPMAP_DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped

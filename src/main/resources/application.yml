@@ -9,7 +9,17 @@ spring:
     initialization-mode: always
     initialize: true
 
+
   jpa:
-    database-platform: "org.hibernate.dialect.PostgreSQLDialect"
-    #hibernate:
-      #ddl-auto=none
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+# to auto create a sql file for schema migration
+#    properties:
+#      javax:
+#        persistence:
+#          schema-generation:
+#            scripts:
+#              action: create
+#              create-target: create.sql
+#              create-source:  metadata

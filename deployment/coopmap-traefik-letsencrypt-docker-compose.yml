@@ -4,9 +4,9 @@
 # Note that the `.env` file should be in the same directory as this `docker-compose.yml`.
 
 # Create networks for your services before deploying the configuration using the commands:
-# `docker network create traefik-network`
+# `docker network create traefik-network coopmap-network`
 
-# Deploy Nextcloud using Docker Compose:
+# Deploy CoopMap using Docker Compose:
 # `docker compose -f *docker-compose.yml -p coopmap up -d`
 
 networks:

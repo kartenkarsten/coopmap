@@ -16,9 +16,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.h2database:h2'
-	implementation 'org.postgresql:postgresql:42.2.10'
+	runtimeOnly 'org.postgresql:postgresql:42.2.10'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// https://mvnrepository.com/artifact/org.springframework/spring-jcl
+	implementation 'org.springframework:spring-jcl'
+
 
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }

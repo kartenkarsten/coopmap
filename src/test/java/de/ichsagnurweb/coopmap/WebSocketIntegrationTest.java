@@ -84,4 +84,45 @@ public class WebSocketIntegrationTest {
         assertThat(receivedMessage.getLat()).isEqualTo(marker.getLat());
         assertThat(receivedMessage.getLon()).isEqualTo(marker.getLon());
     }
+
+    @Test
+    public void shouldGetAllMarkers() throws Exception {
+        BlockingQueue<Marker> blockingQueue = new LinkedBlockingDeque<>();
+
+        String wsUrl = "ws://localhost:" + port + "/socket";
+        StompSession session = stompClient.connect(
+                        wsUrl, new StompSessionHandlerAdapter() {})
+                .get(30, TimeUnit.SECONDS);
+
+        session.subscribe("/topic/markers", new StompFrameHandler() {
+            @Override
+            public Type getPayloadType(StompHeaders stompHeaders) {
+                return byte[].class;
+            }
+
+            @Override
+            public void handleFrame(StompHeaders stompHeaders, Object payload) {
+                try {
+                    List<Marker> markers = objectMapper.readValue(new String((byte[]) payload, StandardCharsets.UTF_8), new TypeReference<List<Marker>>() {});
+                    blockingQueue.addAll(markers);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        Marker marker = new Marker("test-getall", 0.0, 0.0);
+        Marker savedmarker = markerRepository.save(marker);
+
+        String message = objectMapper.writeValueAsString(marker);
+        session.send("/app/getMarkers", null);
+
+        Marker receivedMessage = blockingQueue.poll(15, SECONDS);
+
+        assertThat(receivedMessage).isNotNull();
+        assertThat(receivedMessage.getId()).isNotNull();
+        assertThat(receivedMessage.getName()).isEqualTo(savedmarker.getName());
+        assertThat(receivedMessage.getLat()).isEqualTo(savedmarker.getLat());
+        assertThat(receivedMessage.getLon()).isEqualTo(savedmarker.getLon());
+    }
 }
