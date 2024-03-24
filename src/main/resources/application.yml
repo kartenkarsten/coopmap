@@ -1,10 +1,25 @@
 server:
   port: 8082
 
-logging:
-  level:
-    #    root: DEBUG
-    #org.springframework: DEBUG
-    org.springframework.web.socket: TRACE
+spring:
+  datasource:
+    driver-class-name: "org.postgresql.Driver"
+    username: "coopmap"
+    url: "jdbc:postgresql://postgres:5432/coopmap"
+    initialization-mode: always
+    initialize: true
 
-  maxStringLength: 100000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+# to auto create a sql file for schema migration
+#    properties:
+#      javax:
+#        persistence:
+#          schema-generation:
+#            scripts:
+#              action: create
+#              create-target: create.sql
+#              create-source:  metadata

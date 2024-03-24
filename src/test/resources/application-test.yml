@@ -1,0 +1,14 @@
+#jdbc:
+ # driverClassName: org.h2.Driver
+ # url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1;NON_KEYWORDS=KEY,VALUE
+
+hibernate:
+  dialect: org.hibernate.dialect.H2Dialect
+  hbm2ddl:
+    auto: create
+
+spring:
+  datasource:
+    driver-class-name: "org.h2.Driver"
+    username: "coopmap"
+    url: "jdbc:h2:mem:test;MODE=PostgreSQL;"

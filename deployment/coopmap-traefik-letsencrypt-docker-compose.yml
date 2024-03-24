@@ -4,29 +4,58 @@
 # Note that the `.env` file should be in the same directory as this `docker-compose.yml`.
 
 # Create networks for your services before deploying the configuration using the commands:
-# `docker network create traefik-network`
+# `docker network create traefik-network coopmap-network`
 
-# Deploy Nextcloud using Docker Compose:
+# Deploy CoopMap using Docker Compose:
 # `docker compose -f *docker-compose.yml -p coopmap up -d`
 
 networks:
   traefik-network:
     external: true
+  coopmap-network:
+    external: true
+
 
 volumes:
   traefik-certificates:
+  coopmap-postgres:
 
 services:
+  postgres:
+    image: ${COOPMAP_POSTGRES_IMAGE}
+    volumes:
+      - coopmap-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${COOPMAP_DB_NAME}
+      POSTGRES_USER: ${COOPMAP_DB_USER}
+      POSTGRES_PASSWORD: ${COOPMAP_DB_PASSWORD}
+    networks:
+      - coopmap-network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${COOPMAP_DB_NAME}", "-U", "${COOPMAP_DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
   coopmap:
     image: ${COOPMAP_IMAGE}
     environment:
       server.name: "${COOPMAP_HOSTNAME}"
       websocket.port: 443
       websocket.protocol: "wss"
+      spring.profiles.active: "debug"
+      spring.datasource.driver-class-name: "org.postgresql.Driver"
+      spring.datasource.password: "${COOPMAP_DB_PASSWORD}"
+      spring.datasource.username: "${COOPMAP_DB_USER}"
+      spring.datasource.url: "jdbc:postgresql://postgres:5432/${COOPMAP_DB_NAME}"
+
     expose:
       - "8082"
     networks:
       - traefik-network
+      - coopmap-network
         #    healthcheck:
         #      test: ["CMD", "curl", "-f", "http://localhost:80/"]
         #      interval: 10s

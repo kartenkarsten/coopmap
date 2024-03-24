@@ -1,18 +1,26 @@
 package de.ichsagnurweb.coopmap;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import java.io.Serializable;
 
+@Entity
 public class Marker implements Serializable {
 
-	private Integer id;
+	@Id
+	@GeneratedValue(strategy= GenerationType.AUTO)
+	private Long id;
 	private String name;
 	private String description;
 	private Double lon;
 	private Double lat;
 
+	//for JPA
 	public Marker() {
 	}
-
 
 	public Marker(String name, Double lon, Double lat) {
 		this.lat = lat;
@@ -20,11 +28,11 @@ public class Marker implements Serializable {
 		this.name = name;
 	}
 
-	public void setId(java.lang.Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public java.lang.Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
