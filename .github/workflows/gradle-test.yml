@@ -30,6 +30,14 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
+    - name: Set up GraalVM (Java 17)
+      uses: graalvm/setup-graalvm@v1
+      with:
+        version: '22.0.0.2'
+        java-version: '17'
+        components: 'native-image'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@a8f75513eafdebd8141bd1cd4e30fcd194af8dfa # v2.12.0
       with:
