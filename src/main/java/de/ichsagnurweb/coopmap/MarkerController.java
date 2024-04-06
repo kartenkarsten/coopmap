@@ -2,12 +2,15 @@ package de.ichsagnurweb.coopmap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.*;
 
@@ -32,19 +35,19 @@ public class MarkerController {
 	private SimpMessagingTemplate messagingTemplate;
 
 
-	@GetMapping("/")
-	public String yourPage(Model model) {
+	@GetMapping("/map/{map_id}")
+	public String yourPage(Model model, @PathVariable(required = false) String map_id) {
 		// Pass a value to the Thymeleaf template
 		model.addAttribute("serverName", serverName);
 		model.addAttribute("websocketPort", websocketPort);
 		model.addAttribute("websocketProtocol", websocketProtocol);
+		model.addAttribute("mapId", map_id);
 
 		return "index";
 	}
 
-	@MessageMapping("/deleteMarker")
-	@SendTo("/topic/markersToDelete")
-	public List<Marker> deleteMarker(Marker marker) throws Exception {
+	@MessageMapping("/{mapId}/deleteMarker")
+	public void deleteMarker(@DestinationVariable("mapId") String mapId, @Payload Marker marker) throws Exception {
 		Marker toDelete = null;
 		Long id = marker.getId();
 		if (null == id) {
@@ -52,30 +55,40 @@ public class MarkerController {
 		}else{
 			// update marker in map
 			toDelete = markerRepository.findById(id).orElse(null);
+			if (!mapId.equals(toDelete.getMapId())) {
+				throw new IllegalArgumentException("Marker with Id '"+id+"' belongs to map id '"+toDelete+"' but was tried to delete from map with id '"+mapId+"'");
+			}
 			markerRepository.deleteById(id);
 		}
-		return Arrays.asList(toDelete);
+		String destination = "/topic/" + mapId + "/markersToDelete"; // Construct dynamic destination
+		messagingTemplate.convertAndSend(destination, Arrays.asList(toDelete));
 	}
 
-	@MessageMapping("/updateMarker")
-	@SendTo("/topic/markers")
-	public List<Marker> updateMarker(Marker marker) throws Exception {
+	@MessageMapping("/{mapId}/updateMarker")
+	public void updateMarker(@DestinationVariable("mapId") String mapId, @Payload Marker marker) throws Exception {
+		if (mapId != null && marker.getMapId() != null && !mapId.equals(marker.getMapId())) {
+			throw new IllegalArgumentException("marker with mapId '"+marker.getMapId()+"' is not allowed to be saved in map with id '"+mapId+"'" );
+		}
+		marker.setMapId(mapId); // ensure only markers on the current map are changed
 		Marker savedMarker = markerRepository.save(marker);
-		return Arrays.asList(savedMarker);
+
+		String destination = "/topic/" + mapId + "/markers"; // Construct dynamic destination
+		messagingTemplate.convertAndSend(destination,  Arrays.asList(savedMarker));
 	}
 
-	@MessageMapping("/getMarkers")
-	@SendTo("/topic/markers")
-	public Iterable<Marker> getMarker() throws Exception {
-		return markerRepository.findAll();
+	@MessageMapping("/{mapId}/getMarkers")
+	public void getMarker(@DestinationVariable("mapId") String mapId) throws Exception {
+		String destination = "/topic/" + mapId + "/markers"; // Construct dynamic destination
+		messagingTemplate.convertAndSend(destination,  markerRepository.findAllByMapId(mapId));
 	}
 
-	@MessageMapping("/clearMap")
-	@SendTo("/topic/markersToDelete")
-	public Iterable<Marker> clearMap() throws Exception {
-		Iterable<Marker> markersToDelete = markerRepository.findAll();
-		markerRepository.deleteAll();
-		return markersToDelete;
+	@MessageMapping("/{mapId}/clearMap")
+	public void clearMap(@DestinationVariable("mapId") String mapId) throws Exception {
+		Iterable<Marker> markersToDelete = markerRepository.findAllByMapId(mapId);
+		markerRepository.deleteAll(markersToDelete);
+
+		String destination = "/topic/" + mapId + "/markersToDelete"; // Construct dynamic destination
+		messagingTemplate.convertAndSend(destination,  markersToDelete);
 	}
 
 
