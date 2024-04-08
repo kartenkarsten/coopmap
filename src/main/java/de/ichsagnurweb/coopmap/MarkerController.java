@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,6 +36,9 @@ public class MarkerController {
 
 	@GetMapping("/map/{map_id}")
 	public String yourPage(Model model, @PathVariable(required = false) String map_id) {
+		if (null == map_id || map_id.isEmpty()) {
+			map_id="demo";
+		}
 		// Pass a value to the Thymeleaf template
 		model.addAttribute("serverName", serverName);
 		model.addAttribute("websocketPort", websocketPort);
@@ -44,6 +46,12 @@ public class MarkerController {
 		model.addAttribute("mapId", map_id);
 
 		return "index";
+	}
+
+	@GetMapping("/")
+	public String welcomePage(Model model) {
+		// TODO: create a welcome page to generate map urls
+		return yourPage(model,"demo");
 	}
 
 	@MessageMapping("/{mapId}/deleteMarker")
