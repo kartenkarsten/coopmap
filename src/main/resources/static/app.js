@@ -5,6 +5,9 @@ const stompClient = new StompJs.Client({
 
 const map = L.map('map').setView([0, 0], 2);
 
+//set the correct headline
+$("#top span").text("Collaborative Map "+mapId);
+
 if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(showPosition);
 }
