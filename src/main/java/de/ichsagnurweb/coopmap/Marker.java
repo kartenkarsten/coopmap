@@ -14,6 +14,7 @@ public class Marker implements Serializable {
 	@GeneratedValue(strategy= GenerationType.AUTO)
 	private Long id;
 	private String name;
+	private String mapId;
 	private String description;
 	private Double lon;
 	private Double lat;
@@ -28,8 +29,23 @@ public class Marker implements Serializable {
 		this.name = name;
 	}
 
+	public Marker(String mapId, String name, Double lon, Double lat) {
+		this.mapId = mapId;
+		this.lat = lat;
+		this.lon = lon;
+		this.name = name;
+	}
+
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public void setMapId(String mapId) {
+		this.mapId = mapId;
+	}
+
+	public String getMapId() {
+		return mapId;
 	}
 
 	public Long getId() {

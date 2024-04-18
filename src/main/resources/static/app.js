@@ -5,6 +5,9 @@ const stompClient = new StompJs.Client({
 
 const map = L.map('map').setView([0, 0], 2);
 
+//set the correct headline
+$("#top span").text("Collaborative Map "+mapId);
+
 if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(showPosition);
 }
@@ -14,13 +17,13 @@ function showPosition(position) {
 
 stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/markers', (message) => {
+    stompClient.subscribe('/topic/'+mapId+'/markers', (message) => {
         ms=JSON.parse(message.body);
         ms.forEach((marker) => {
             showMarker(marker.lat, marker.lon, marker.id, marker.name, marker.description);
         });
     });
-    stompClient.subscribe('/topic/markersToDelete', (message) => {
+    stompClient.subscribe('/topic/'+mapId+'/markersToDelete', (message) => {
         ms=JSON.parse(message.body);
         ms.forEach((marker) => {
             deleteMarker(marker.id);
@@ -34,7 +37,7 @@ stompClient.onConnect = (frame) => {
     });
 
     // load already published markers
-    stompClient.publish({destination: "/app/getMarkers"});
+    stompClient.publish({destination: "/app/"+mapId+"/getMarkers"});
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -52,21 +55,21 @@ markerDetailsHide();
 ////////////////////////////////////////////////////////////////////////////
 function publishMarker(lat, lon, id, name, desc) {
         stompClient.publish({
-            destination: "/app/updateMarker",
+            destination: "/app/"+mapId+"/updateMarker",
             body: JSON.stringify({'id': id, 'name':name,'lat': lat, 'lon': lon, 'description': desc})
         });
 }
 
 function publishMarkerDeletion(id) {
         stompClient.publish({
-            destination: "/app/deleteMarker",
+            destination: "/app/"+mapId+"/deleteMarker",
             body: JSON.stringify({'id': id})
         });
 }
 
 function publishClearMap() {
         stompClient.publish({
-            destination: "/app/clearMap",
+            destination: "/app/"+mapId+"/clearMap",
             body: JSON.stringify({})
         });
 }

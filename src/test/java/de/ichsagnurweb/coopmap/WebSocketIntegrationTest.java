@@ -3,6 +3,7 @@ package de.ichsagnurweb.coopmap;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -46,9 +47,14 @@ public class WebSocketIntegrationTest {
     @LocalServerPort
     private int port;
 
+    @AfterEach
+    public void cleanUp() {
+        markerRepository.deleteAll();//clean up
+    }
 
     @Test
     public void shouldAssignIdToNewMarker() throws Exception {
+        String mapId = "test";
         BlockingQueue<Marker> blockingQueue = new LinkedBlockingDeque<>();
 
         String wsUrl = "ws://localhost:" + port + "/socket";
@@ -56,7 +62,7 @@ public class WebSocketIntegrationTest {
                         wsUrl, new StompSessionHandlerAdapter() {})
                 .get(30, TimeUnit.SECONDS);
 
-        session.subscribe("/topic/markers", new StompFrameHandler() {
+        session.subscribe("/topic/"+mapId+"/markers", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders stompHeaders) {
                 return byte[].class;
@@ -73,23 +79,24 @@ public class WebSocketIntegrationTest {
             }
         });
 
-        Marker marker = new Marker("test", 0.0, 0.0);
+        Marker marker = new Marker(mapId,"test", 0.0, 0.0);
 
         String message = objectMapper.writeValueAsString(marker);
-        session.send("/app/updateMarker", message.getBytes());
+        session.send("/app/"+mapId+"/updateMarker", message.getBytes());
 
         Marker receivedMessage = blockingQueue.poll(15, SECONDS);
         assertThat(markerRepository.findAll()).size().isEqualTo(1);
-        markerRepository.deleteAll();//clean up
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage.getId()).isNotNull();
         assertThat(receivedMessage.getName()).isEqualTo(marker.getName());
+        assertThat(receivedMessage.getMapId()).isEqualTo(marker.getMapId());
         assertThat(receivedMessage.getLat()).isEqualTo(marker.getLat());
         assertThat(receivedMessage.getLon()).isEqualTo(marker.getLon());
     }
 
     @Test
-    public void shouldGetAllMarkers() throws Exception {
+    public void shouldGetAllMarkersByMapId() throws Exception {
+        String mapId = "test";
         BlockingQueue<Marker> blockingQueue = new LinkedBlockingDeque<>();
 
         String wsUrl = "ws://localhost:" + port + "/socket";
@@ -97,7 +104,7 @@ public class WebSocketIntegrationTest {
                         wsUrl, new StompSessionHandlerAdapter() {})
                 .get(30, TimeUnit.SECONDS);
 
-        session.subscribe("/topic/markers", new StompFrameHandler() {
+        session.subscribe("/topic/"+mapId+"/markers", new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders stompHeaders) {
                 return byte[].class;
@@ -114,17 +121,17 @@ public class WebSocketIntegrationTest {
             }
         });
 
-        Marker marker = new Marker("test-getall", 0.0, 0.0);
+        Marker marker = new Marker(mapId, "test-getall", 0.0, 0.0);
         Marker savedmarker = markerRepository.save(marker);
 
-        session.send("/app/getMarkers", null);
+        session.send("/app/"+mapId+"/getMarkers", null);
 
         Marker receivedMessage = blockingQueue.poll(15, SECONDS);
 
-        markerRepository.deleteAll();//clean up
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage.getId()).isNotNull();
         assertThat(receivedMessage.getName()).isEqualTo(savedmarker.getName());
+        assertThat(receivedMessage.getMapId()).isEqualTo(marker.getMapId());
         assertThat(receivedMessage.getLat()).isEqualTo(savedmarker.getLat());
         assertThat(receivedMessage.getLon()).isEqualTo(savedmarker.getLon());
     }
