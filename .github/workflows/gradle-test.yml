@@ -31,7 +31,7 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@8baac4c8ef753599f92eeb509c246d09d6250fa6 # v3.3.0
+      uses: gradle/gradle-build-action@e2097ccd7e8ed48671dc068ac4efa86d25745b39 # v3.3.1
       with:
         arguments: build
 
@@ -43,7 +43,7 @@ jobs:
         password: ${{secrets.GITHUB_TOKEN}}
 
     - name: Build image with Gradle
-      uses: gradle/gradle-build-action@8baac4c8ef753599f92eeb509c246d09d6250fa6 # v3.3.0
+      uses: gradle/gradle-build-action@e2097ccd7e8ed48671dc068ac4efa86d25745b39 # v3.3.1
       with:
         arguments: bootBuildImage --imageName=ghcr.io/kartenkarsten/coopmap:dev-pr-${{ github.event.number }}
 
