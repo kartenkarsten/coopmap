@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles(value = "test")
-@Disabled
 public class SampleDataRestControllerTest {
 
     @Autowired
@@ -27,7 +26,7 @@ public class SampleDataRestControllerTest {
 
     @Test
     public void testUserController() throws Exception {
-        String mapId = "test";
+        String mapId = "SampleDataRestControllerTest";
 
         // Define the expected result or behavior
         String expectedResponse = "";

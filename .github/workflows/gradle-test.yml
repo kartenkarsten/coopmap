@@ -35,6 +35,13 @@ jobs:
       with:
         arguments: build
 
+      # Upload test report as artifact
+    - name: Upload Test Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-report
+        path: /home/runner/work/coopmap/coopmap/build/reports/tests/test/index.html
+
     - name: 'Login to GitHub Container Registry'
       uses: docker/login-action@v3
       with:
