@@ -15,7 +15,6 @@ public class SampleDataRestController {
 
     @PostMapping("/api/map/{mapId}/sampledata")
     void createSampleData(@PathVariable(value="mapId") String mapId) {
-//        assert "internal-test-map".equals(mapId);
 
         Marker bahnhof = new Marker(mapId, "Bahnhof Lüneburg", 10.41954, 53.24989);
         markerRepository.save(bahnhof);

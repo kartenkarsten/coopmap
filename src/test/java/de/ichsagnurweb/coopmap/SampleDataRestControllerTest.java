@@ -33,7 +33,7 @@ public class SampleDataRestControllerTest {
 
         assertThat(markerRepository.findAllByMapId(mapId)).isEmpty();
 
-        // Perform GET request and verify the response
+        // Perform POST request and verify the response
         mockMvc.perform(MockMvcRequestBuilders.post("/api/map/"+mapId+"/sampledata")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
