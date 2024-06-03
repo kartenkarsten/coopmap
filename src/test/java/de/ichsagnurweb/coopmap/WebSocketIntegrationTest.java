@@ -51,7 +51,7 @@ public class WebSocketIntegrationTest {
 
     @Test
     public void shouldAssignIdToNewMarker() throws Exception {
-        String mapId = "test";
+        String mapId = "test-shouldAssignIdToNewMarker";
         BlockingQueue<Marker> blockingQueue = new LinkedBlockingDeque<>();
 
         String wsUrl = "ws://localhost:" + port + "/socket";
@@ -82,7 +82,7 @@ public class WebSocketIntegrationTest {
         session.send("/app/"+mapId+"/updateMarker", message.getBytes());
 
         Marker receivedMessage = blockingQueue.poll(15, SECONDS);
-        assertThat(markerRepository.findAll()).size().isEqualTo(1);
+        assertThat(markerRepository.findAllByMapId(mapId)).size().isEqualTo(1);
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage.getId()).isNotNull();
         assertThat(receivedMessage.getName()).isEqualTo(marker.getName());
@@ -93,7 +93,7 @@ public class WebSocketIntegrationTest {
 
     @Test
     public void shouldGetAllMarkersByMapId() throws Exception {
-        String mapId = "test";
+        String mapId = "test-shouldGetAllMarkersByMapId";
         BlockingQueue<Marker> blockingQueue = new LinkedBlockingDeque<>();
 
         String wsUrl = "ws://localhost:" + port + "/socket";
