@@ -4,13 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.data.repository.support.Repositories;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -54,7 +51,7 @@ public class WebSocketIntegrationTest {
 
     @Test
     public void shouldAssignIdToNewMarker() throws Exception {
-        String mapId = "test";
+        String mapId = "test-shouldAssignIdToNewMarker";
         BlockingQueue<Marker> blockingQueue = new LinkedBlockingDeque<>();
 
         String wsUrl = "ws://localhost:" + port + "/socket";
@@ -85,7 +82,7 @@ public class WebSocketIntegrationTest {
         session.send("/app/"+mapId+"/updateMarker", message.getBytes());
 
         Marker receivedMessage = blockingQueue.poll(15, SECONDS);
-        assertThat(markerRepository.findAll()).size().isEqualTo(1);
+        assertThat(markerRepository.findAllByMapId(mapId)).size().isEqualTo(1);
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage.getId()).isNotNull();
         assertThat(receivedMessage.getName()).isEqualTo(marker.getName());
@@ -96,7 +93,7 @@ public class WebSocketIntegrationTest {
 
     @Test
     public void shouldGetAllMarkersByMapId() throws Exception {
-        String mapId = "test";
+        String mapId = "test-shouldGetAllMarkersByMapId";
         BlockingQueue<Marker> blockingQueue = new LinkedBlockingDeque<>();
 
         String wsUrl = "ws://localhost:" + port + "/socket";
