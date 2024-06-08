@@ -37,7 +37,7 @@ jobs:
 
       # Upload test report as artifact
     - name: Upload Test Report
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: test-report
         path: /home/runner/work/coopmap/coopmap/build/reports/tests/test/index.html
