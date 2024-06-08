@@ -1,21 +1,39 @@
+import java.text.SimpleDateFormat
+
 plugins {
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.4'
 	id 'java'
+	id 'org.liquibase.gradle' version '2.2.1'
 }
 
 group = 'de.ichsagnurweb'
 version = 'dev-tag'
 sourceCompatibility = '17'
 
+ext {
+	mainUrl = 'jdbc:postgresql://localhost:5432/coopmap-db'
+	// TODO read this details from ./deployment/.env
+	mainUsername = "coopmap-user"
+	mainPassword = "iloo5ohseiZae2roth6a"
+
+	set('testcontainers.version', "1.19.3")
+	set('spring-boot.version', "3.1.6")
+
+}
+
 repositories {
 	mavenCentral()
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.h2database:h2'
+	testImplementation 'org.testcontainers:postgresql'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'io.rest-assured:rest-assured'
 	runtimeOnly 'org.postgresql:postgresql:42.2.10'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -23,17 +41,67 @@ dependencies {
 
 	// https://mvnrepository.com/artifact/org.springframework/spring-jcl
 	implementation 'org.springframework:spring-jcl'
-
+	implementation 'org.liquibase:liquibase-core:4.24.0'
 
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	liquibaseRuntime 'org.liquibase:liquibase-core:4.24.0'
+	liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
+	liquibaseRuntime 'info.picocli:picocli:4.6.1'
+	liquibaseRuntime 'mysql:mysql-connector-java:5.1.34'
+	liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+	liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate5:3.6'
+	liquibaseRuntime 'org.postgresql:postgresql:42.2.10'
+	liquibaseRuntime sourceSets.main.output
+}
+
+configurations {
+	liquibaseRuntime.extendsFrom runtime
 }
 
 test {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		excludeTags 'integrationTest'
+	}
+	testLogging {
+		events "started", "skipped", "passed", "failed"
+		exceptionFormat "full"
+		showStandardStreams = true
+	}
+}
+
+task integrationTest(type: Test) {
+	systemProperty 'image.nametag', project.findProperty('imageName') ?: 'ghcr.io/kartenkarsten/coopmap:dev-tag'
+	useJUnitPlatform {
+		includeTags 'integrationTest'
+	}
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+}
+
+
+liquibase {
+	activities {
+		main {
+			changelogFile 'src/main/resources/db/changelog/master.xml'
+			url project.ext.mainUrl
+			username project.ext.mainUsername
+			password project.ext.mainPassword
+			logLevel "debug"
+		}
+	}
 }
 
 tasks.named("bootBuildImage") {
-	imageName.set("ghcr.io/kartenkarsten/${project.name}")
+	imageName.set("ghcr.io/kartenkarsten/${project.name}:dev-tag")
+	createdDate = "now"
+//	tags = ["ghcr.io/kartenkarsten/${project.name}:dev-tag"]
+//	image {
+//		//String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'h:m:ssZZZZZ").format(new Date());
+//		//addLabel("org.opencontainers.image.created", timestamp)
+//		addLabel("org.opencontainers.image.title", ${project.name})
+//		addLabel("org.opencontainers.image.source", "https://github.com/kartenkarsten/coopmap")
+//	}
 //	publish = true
 //	docker {
 //		publishRegistry {
