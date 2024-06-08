@@ -54,5 +54,10 @@ jobs:
       with:
         arguments: bootBuildImage --imageName=ghcr.io/kartenkarsten/coopmap:dev-pr-${{ github.event.number }}
 
+    - name: Build with Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        arguments: integrationTest -PimageName=ghcr.io/kartenkarsten/coopmap:dev-pr-${{ github.event.number }}
+
     - name: Push image
       run: docker push ghcr.io/kartenkarsten/coopmap:dev-pr-${{ github.event.number }}

@@ -27,6 +27,7 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.h2database:h2'
@@ -57,6 +58,27 @@ dependencies {
 configurations {
 	liquibaseRuntime.extendsFrom runtime
 }
+
+task integrationTest(type: Test) {
+	systemProperty 'image.nametag', project.findProperty('imageName') ?: 'ghcr.io/kartenkarsten/coopmap:dev-tag'
+	useJUnitPlatform {
+		includeTags 'IT'
+	}
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+}
+
+test {
+	useJUnitPlatform {
+		excludeTags 'IT'
+	}
+	testLogging {
+		events "started", "skipped", "passed", "failed"
+		exceptionFormat "full"
+		showStandardStreams = true
+	}
+}
+
 
 liquibase {
 	activities {

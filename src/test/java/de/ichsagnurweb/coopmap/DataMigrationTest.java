@@ -1,10 +1,7 @@
 package de.ichsagnurweb.coopmap;
 
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +28,9 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // integration test
-@ActiveProfiles(value = "integrationtest")
+//@ActiveProfiles(value = "integrationtest")
 @SpringBootTest
+@Tag("IT")
 public class DataMigrationTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DataMigrationTest.class);
@@ -79,6 +77,9 @@ public class DataMigrationTest {
     void shouldMigrateData() {
         String mapId = "test-shouldMigrateData";
 
+        String freshBuildImageName = System.getProperty("image.nametag");
+        assertThat(freshBuildImageName).isNotEmpty();
+
         // run the old release - is a precondition
         DockerImageName appImage = DockerImageName.parse("ghcr.io/kartenkarsten/coopmap:latest");
         String jdbcUrl = "jdbc:postgresql://postgres:5432/"+postgres.getDatabaseName();
@@ -112,7 +113,7 @@ public class DataMigrationTest {
         oldReleaseContainer.stop();
 
         // run current build
-        DockerImageName currentAppImage = DockerImageName.parse("ghcr.io/kartenkarsten/coopmap:dev-tag");
+        DockerImageName currentAppImage = DockerImageName.parse(freshBuildImageName);
         GenericContainer<?> currentBuildAppContainer = new GenericContainer<>(currentAppImage)
                 //    .withImagePullPolicy(PullPolicy.ageBased(Duration.ofMinutes(10)))
                 .withEnv("spring.datasource.url", jdbcUrl)
@@ -142,5 +143,9 @@ public class DataMigrationTest {
 
         //clean up
         currentBuildAppContainer.stop();
+
+        // assert data existing
+        allMarkers = myEntityRepository.findAllByMapId(mapId);
+        assertThat(allMarkers).isNotEmpty();
     }
 }
