@@ -84,7 +84,7 @@ public class DataMigrationTest {
         DockerImageName appImage = DockerImageName.parse("ghcr.io/kartenkarsten/coopmap:latest");
         String jdbcUrl = "jdbc:postgresql://postgres:5432/"+postgres.getDatabaseName();
         GenericContainer<?> oldReleaseContainer = new GenericContainer<>(appImage)
-            //    .withImagePullPolicy(PullPolicy.ageBased(Duration.ofMinutes(10)))
+                .withImagePullPolicy(PullPolicy.ageBased(Duration.ofMinutes(5)))
                 .withEnv("spring.datasource.url", jdbcUrl)
                 .withEnv("spring.datasource.username", postgres.getUsername())
                 .withEnv("spring.datasource.password", postgres.getPassword())
