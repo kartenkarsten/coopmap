@@ -1,0 +1,45 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+<!--    <changeSet author="karsten (generated)" id="1713557689089-1">-->
+<!--        <preConditions onFail="MARK_RAN">-->
+<!--            <not>-->
+<!--                <sequenceExists sequenceName="interactive_map_seq"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+<!--        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="interactive_map_seq" startValue="1"/>-->
+<!--    </changeSet>-->
+    <changeSet author="karsten" id="1713557689089-2">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sequenceExists sequenceName="marker_seq"/>
+            </not>
+        </preConditions>
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807" minValue="1" sequenceName="marker_seq" startValue="1"/>
+    </changeSet>
+<!--    <changeSet author="karsten (generated)" id="1713557689089-3">-->
+<!--        <createTable tableName="interactive_map">-->
+<!--            <column name="id" type="VARCHAR(255)">-->
+<!--                <constraints nullable="false" primaryKey="true" primaryKeyName="interactive_map_pkey"/>-->
+<!--            </column>-->
+<!--            <column name="description" type="VARCHAR(255)"/>-->
+<!--            <column name="name" type="VARCHAR(255)"/>-->
+<!--        </createTable>-->
+<!--    </changeSet>-->
+    <changeSet author="karsten" id="1713557689089-4">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="marker"/>
+            </not>
+        </preConditions>
+        <createTable tableName="marker">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="marker_pkey"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="lat" type="FLOAT8"/>
+            <column name="lon" type="FLOAT8"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="map_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

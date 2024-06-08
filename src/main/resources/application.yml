@@ -8,11 +8,13 @@ spring:
     url: "jdbc:postgresql://postgres:5432/coopmap"
     initialization-mode: always
     initialize: true
+  liquibase:
+    change-log: classpath:/db/changelog/master.xml
 
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
       dialect: org.hibernate.dialect.PostgreSQLDialect
 # to auto create a sql file for schema migration
 #    properties:
