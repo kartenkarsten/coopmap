@@ -59,24 +59,24 @@ configurations {
 	liquibaseRuntime.extendsFrom runtime
 }
 
-task integrationTest(type: Test) {
-	systemProperty 'image.nametag', project.findProperty('imageName') ?: 'ghcr.io/kartenkarsten/coopmap:dev-tag'
-	useJUnitPlatform {
-		includeTags 'IT'
-	}
-	testClassesDirs = sourceSets.test.output.classesDirs
-	classpath = sourceSets.test.runtimeClasspath
-}
-
 test {
 	useJUnitPlatform {
-		excludeTags 'IT'
+		excludeTags 'integrationTest'
 	}
 	testLogging {
 		events "started", "skipped", "passed", "failed"
 		exceptionFormat "full"
 		showStandardStreams = true
 	}
+}
+
+task integrationTest(type: Test) {
+	systemProperty 'image.nametag', project.findProperty('imageName') ?: 'ghcr.io/kartenkarsten/coopmap:dev-tag'
+	useJUnitPlatform {
+		includeTags 'integrationTest'
+	}
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
 }
 
 
@@ -90,10 +90,6 @@ liquibase {
 			logLevel "debug"
 		}
 	}
-}
-
-test {
-	useJUnitPlatform()
 }
 
 tasks.named("bootBuildImage") {

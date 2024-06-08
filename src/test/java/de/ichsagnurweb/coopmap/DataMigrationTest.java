@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // integration test
 //@ActiveProfiles(value = "integrationtest")
 @SpringBootTest
-@Tag("IT")
+@Tag("integrationTest")
 public class DataMigrationTest {
 
     private static final Logger logger = LoggerFactory.getLogger(DataMigrationTest.class);
@@ -78,7 +78,7 @@ public class DataMigrationTest {
         String mapId = "test-shouldMigrateData";
 
         String freshBuildImageName = System.getProperty("image.nametag");
-        assertThat(freshBuildImageName).isNotEmpty();
+        assertThat(freshBuildImageName).as("-PimageName=myimage:latest needs to be set in the gradle call (should be the case if you use integrationTest task). Check as well build.gradle file for correct forwarding.").isNotEmpty();
 
         // run the old release - is a precondition
         DockerImageName appImage = DockerImageName.parse("ghcr.io/kartenkarsten/coopmap:latest");
