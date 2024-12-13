@@ -109,9 +109,9 @@ function showMarker(lat, lon, id, name, desc) {
                     markers[id].marker.setIcon(L.icon({
                         iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png', // Change icon
                         iconSize: [50, 82],
-                        iconAnchor: [12, 41],
+                        iconAnchor: [25, 82],
                         popupAnchor: [1, -34],
-                        shadowSize: [41, 41]
+                        shadowSize: [82, 82]
                     }));
 
                     console.log('Marker '+ id +' is now draggable!');
