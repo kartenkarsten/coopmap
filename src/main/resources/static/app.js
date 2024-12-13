@@ -3,6 +3,7 @@ const stompClient = new StompJs.Client({
     brokerURL: websocketProtocol+'://'+serverName+':'+websocketPort+'/socket'
 });
 
+const enableMultiDrag = false;
 const map = L.map('map').setView([0, 0], 2);
 
 //set the correct headline
@@ -50,7 +51,7 @@ stompClient.onStompError = (frame) => {
 };
 
 stompClient.activate();
-markerDetailsHide();
+updateMapHeight();
 
 ////////////////////////////////////////////////////////////////////////////
 function publishMarker(lat, lon, id, name, desc) {
@@ -87,23 +88,41 @@ function showMarker(lat, lon, id, name, desc) {
 
     if (null == marker) {
         // init marker
-        var leafleatObject = L.marker([lat, lon], {'title': name, 'draggable': true}).on('click', function (e) {
+        var leafleatObject = L.marker([lat, lon], {'title': name, 'draggable': enableMultiDrag});
+        marker={};
+        marker.marker = leafleatObject;
+        markers[id] = marker;
+
+        leafleatObject.on('click', function (e) {
             L.DomEvent.stopPropagation(e);
             if ($("#markerDetails :input#id").val() == id) {
                 // unselect this marker
                 markerDetailsHide();
+
             }else{
                 // select this marker
                 markerDetailsShow(id);
+                if (!markers[id].marker.dragging.enabled()) {
+                    markers[id].marker.dragging.enable(); // Make the marker draggable
+
+                    // Optionally, change the marker's icon or appearance
+                    markers[id].marker.setIcon(L.icon({
+                        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png', // Change icon
+                        iconSize: [50, 82],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    }));
+
+                    console.log('Marker '+ id +' is now draggable!');
+                }
             }
         });
         leafleatObject.on('dragend', function(e) {
           console.log('marker dragend event');
           publishMarker(e.target._latlng.lat, e.target._latlng.lng, id, markers[id].name, markers[id].desc);
         });
-        marker={};
-        marker.marker = leafleatObject;
-        markers[id] = marker;
+
         leafleatObject.addTo(map);
 
     } else {
@@ -133,11 +152,35 @@ function markerDetailsSave() {
 function markerDetailsHide() {
     $("#markerDetails").hide();
     var id = $("#markerDetails :input#id").val();
+
+    // unselect
+    if (markers && markers[id]) {
+        if (markers[id].marker.dragging.enabled() && !enableMultiDrag) {
+            markers[id].marker.dragging.disable(); // Make the marker not draggable
+            console.log('Marker '+ id +' is now not draggable!');
+        }
+
+        // Optionally, change the marker's icon or appearance
+        markers[id].marker.setIcon(L.icon({
+            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png', // Change icon back
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        }));
+    }
+
+
     $("#markerDetails :input#id").val("invalid")
     //map.fire('coopmap:markerunselected', { 'markerId': id });
+    updateMapHeight();
+}
+
+function updateMapHeight() {
     var otherHeights = $("#top").height() + 16;
     $("#map").height("calc(100% - " + otherHeights + "px)");
     setTimeout(function(){ map.invalidateSize()}, 400);
+
 }
 
 function markerDetailsShow(id) {
