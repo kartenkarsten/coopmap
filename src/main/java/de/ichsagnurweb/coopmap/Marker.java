@@ -18,6 +18,7 @@ public class Marker implements Serializable {
 	private String description;
 	private Double lon;
 	private Double lat;
+	private String icon;
 
 	//for JPA
 	public Marker() {
@@ -62,6 +63,14 @@ public class Marker implements Serializable {
 
 	public java.lang.String getName() {
 		return name;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 
 	public java.lang.String getDescription() {

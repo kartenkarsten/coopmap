@@ -42,4 +42,10 @@
             <column name="map_id" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
+    <changeSet id="1737574067380-1" author="karsten">
+        <addColumn tableName="marker">
+            <column name="icon" type="VARCHAR(255)" value="marker-blue"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

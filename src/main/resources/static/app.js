@@ -21,7 +21,7 @@ stompClient.onConnect = (frame) => {
     stompClient.subscribe('/topic/'+mapId+'/markers', (message) => {
         ms=JSON.parse(message.body);
         ms.forEach((marker) => {
-            showMarker(marker.lat, marker.lon, marker.id, marker.name, marker.description);
+            showMarker(marker.lat, marker.lon, marker.id, marker.name, marker.description, (marker.icon || 'marker-orange') );
         });
     });
     stompClient.subscribe('/topic/'+mapId+'/markersToDelete', (message) => {
@@ -54,10 +54,10 @@ stompClient.activate();
 updateMapHeight();
 
 ////////////////////////////////////////////////////////////////////////////
-function publishMarker(lat, lon, id, name, desc) {
+function publishMarker(lat, lon, id, name, desc, icon) {
         stompClient.publish({
             destination: "/app/"+mapId+"/updateMarker",
-            body: JSON.stringify({'id': id, 'name':name,'lat': lat, 'lon': lon, 'description': desc})
+            body: JSON.stringify({'id': id, 'name':name,'lat': lat, 'lon': lon, 'description': desc, 'icon': icon})
         });
 }
 
@@ -83,12 +83,19 @@ function deleteMarker(id) {
     markers[id] = null;
 }
 
-function showMarker(lat, lon, id, name, desc) {
+function showMarker(lat, lon, id, name, desc, icon) {
     var marker = markers[id];
 
     if (null == marker) {
         // init marker
         var leafleatObject = L.marker([lat, lon], {'title': name, 'draggable': enableMultiDrag});
+        leafleatObject.setIcon(L.icon({
+            iconUrl: pathPrefix+icon+'.svg', // Change icon
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          }));
         marker={};
         marker.marker = leafleatObject;
         markers[id] = marker;
@@ -107,7 +114,7 @@ function showMarker(lat, lon, id, name, desc) {
 
                     // Optionally, change the marker's icon or appearance
                     markers[id].marker.setIcon(L.icon({
-                        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png', // Change icon
+                        iconUrl: pathPrefix+'marker-move.svg', // Change icon
                         iconSize: [50, 82],
                         iconAnchor: [25, 82],
                         popupAnchor: [1, -34],
@@ -120,7 +127,7 @@ function showMarker(lat, lon, id, name, desc) {
         });
         leafleatObject.on('dragend', function(e) {
           console.log('marker dragend event');
-          publishMarker(e.target._latlng.lat, e.target._latlng.lng, id, markers[id].name, markers[id].desc);
+          publishMarker(e.target._latlng.lat, e.target._latlng.lng, id, markers[id].name, markers[id].desc, markers[id].icon);
         });
 
         leafleatObject.addTo(map);
@@ -128,11 +135,19 @@ function showMarker(lat, lon, id, name, desc) {
     } else {
         // update marker
         marker.marker.setLatLng(new L.LatLng(lat, lon));
+        marker.marker.setIcon(L.icon({
+                                              iconUrl: '../static/'+icon+'.svg', // Change icon
+                                              iconSize: [50, 82],
+                                              iconAnchor: [25, 82],
+                                              popupAnchor: [1, -34],
+                                              shadowSize: [82, 82]
+                                          }));
     }
     marker.lat = lat;
     marker.lon = lon;
     marker.name = name;
     marker.desc = desc;
+    marker.icon = icon;
 }
 
 function markerDelete() {
@@ -145,7 +160,8 @@ function markerDetailsSave() {
     var id = $("#markerDetails :input#id").val();
     var name = $("#markerDetails :input#name").val();
     var desc = $("#markerDetails :input#description").val();
-    publishMarker(markers[id].lat, markers[id].lon, id, name, desc);
+    var icon = $("#markerDetails :input#icon").val();
+    publishMarker(markers[id].lat, markers[id].lon, id, name, desc, icon);
     markerDetailsHide();
 }
 
@@ -162,7 +178,7 @@ function markerDetailsHide() {
 
         // Optionally, change the marker's icon or appearance
         markers[id].marker.setIcon(L.icon({
-            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png', // Change icon back
+            iconUrl: '../static/'+markers[id].icon+'.svg', // Change icon back
             iconSize: [25, 41],
             iconAnchor: [12, 41],
             popupAnchor: [1, -34],
